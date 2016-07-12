@@ -19,12 +19,12 @@ function normalizeMatchers(matchers) {
 }
 
 function parsify(matcher) {
-	matcher.parse = src => matcher(new SourceContext(src))
+	matcher.match = src => matcher(new SourceContext(src))
+	matcher.parse = src => matcher.match(src).node
 	return matcher
 }
 
-function any(type = 'Any', ...tokens) {
-	assert(typeof type == 'string', 'Must pass a node type to match.any (signature: match.any(type, ...tokens))')
+function any(...tokens) {
 	const matchers = normalizeMatchers(tokens)
 
 	return parsify(function anyMatcher(ctx) {
