@@ -3,6 +3,7 @@
 const assert = require('assert')
 const AstNode = require('./ast-node')
 const debug = require('debug')
+const SourceContext = require('./source-context')
 
 function normalizeMatchers(matchers) {
 	return matchers.map(matcher => {
@@ -17,17 +18,22 @@ function normalizeMatchers(matchers) {
 	})
 }
 
+function parsify(matcher) {
+	matcher.parse = src => matcher(new SourceContext(src))
+	return matcher
+}
+
 function any(type = 'Any', ...tokens) {
 	assert(typeof type == 'string', 'Must pass a node type to match.any (signature: match.any(type, ...tokens))')
 	const matchers = normalizeMatchers(tokens)
 
-	return function anyMatcher(ctx) {
+	return parsify(function anyMatcher(ctx) {
 		for (const matcher of matchers) {
 			const match = matcher(ctx)
 			if (match)
 				return match
 		}
-	}
+	})
 }
 
 function many(type = 'Many', matcher, separator) {
@@ -35,9 +41,10 @@ function many(type = 'Many', matcher, separator) {
 	separator = separator || ((ctx) => ({ ctx, node: new AstNode('Separator', [ ]) }))
 
 	;[ matcher, separator ] = normalizeMatchers([ matcher, separator ])
-	return function manyMatcher(ctx) {
+	return parsify(function manyMatcher(ctx) {
 		const matches = [ ]
 
+		// eslint-disable-next-line no-constant-condition
 		do {
 			const match = matcher(ctx)
 			if (!match) break
@@ -51,32 +58,32 @@ function many(type = 'Many', matcher, separator) {
 			ctx,
 			node: new AstNode(type, matches),
 		}
-	}
+	})
 }
 
 function optional(type = 'Empty', matcher) {
 	assert(typeof type == 'string', 'Must pass a node type to match.optional (signature: match.optional(type, matcher))')
 	;[ matcher ] = normalizeMatchers([ matcher ])
-	return function optionalMatcher(ctx) {
+	return parsify(function optionalMatcher(ctx) {
 		const match = matcher(ctx)
 		return match ? match : {
 			ctx,
-			node: new AstNode(type, [ ])
+			node: new AstNode(type, [ ]),
 		}
-	}
+	})
 }
 
 function plus(type = 'Many', matcher, separator) {
 	const _matcher = many(type, matcher, separator)
-	return function plusMatcher(ctx) {
+	return parsify(function plusMatcher(ctx) {
 		const match = _matcher(ctx)
 		return match && match.node.parts.length >= 1 ? match : undefined
-	}
+	})
 }
 
 function regex(type = 'RegExp', regex) {
 	assert(typeof type == 'string', 'Must pass a node type to match.regex (signature: match.regex(type, s))')
-	return function regexMatcher(ctx) {
+	return parsify(function regexMatcher(ctx) {
 		const match = regex.exec(ctx.toString())
 		debug('rdp:regex')(ctx.toString(), regex.source, match)
 		if (!match) return
@@ -85,7 +92,7 @@ function regex(type = 'RegExp', regex) {
 			ctx: ctx.skip(match[0].length),
 			node: new AstNode(type, match.slice(1)),
 		}
-	}
+	})
 }
 
 function sequence(type = 'Sequence', ...tokens) {
@@ -93,7 +100,7 @@ function sequence(type = 'Sequence', ...tokens) {
 	const matchers = normalizeMatchers(tokens)
 
 	// combine into one matcher:
-	return function sequenceMatcher(ctx) {
+	return parsify(function sequenceMatcher(ctx) {
 		let currCtx = ctx
 		const matches = [ ]
 		for (const matcher of matchers) {
@@ -108,7 +115,7 @@ function sequence(type = 'Sequence', ...tokens) {
 			ctx: currCtx,
 			node: new AstNode(type, matches),
 		}
-	} // matcher
+	}) // matcher
 }
 
 function string(type = 'String', s) {

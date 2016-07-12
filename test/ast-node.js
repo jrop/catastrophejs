@@ -13,7 +13,7 @@ describe('AstNode', function () {
 
 	it('toObject', function () {
 		const node = new AstNode('Type', [
-			1, 2, new AstNode('Inner', [ 'inner' ])
+			1, 2, new AstNode('Inner', [ 'inner' ]),
 		])
 		assert.deepEqual(node.toObject(), {
 			type: 'Type',

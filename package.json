@@ -5,16 +5,17 @@
   "main": "index.js",
   "scripts": {
     "coverage": "istanbul cover _mocha test/",
+    "lint": "eslint .",
     "test": "mocha test/"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "debug": "^2.2.0",
-    "fs": "0.0.2"
+    "debug": "^2.2.0"
   },
   "devDependencies": {
+    "eslint": "^3.0.1",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3"
   }

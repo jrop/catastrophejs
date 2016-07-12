@@ -2,13 +2,12 @@
 
 const assert = require('assert')
 const match = require('../match')
-const SourceContext = require('../source-context')
 
 describe('match', function () {
 	it('any', function () {
 		const paths = match.any('Any', match.regex('Number', /^\s*(\d+)\s*/), match.regex('Alpha', /^\s*([a-zA-Z]+)\s*/))
 
-		let m = paths(new SourceContext('  123  '))
+		let m = paths.parse('  123  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -16,7 +15,7 @@ describe('match', function () {
 			parts: [ '123' ],
 		})
 
-		m = paths(new SourceContext('  abcABC  '))
+		m = paths.parse('  abcABC  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -28,7 +27,7 @@ describe('match', function () {
 	it('many', function () {
 		let matcher = match.many('NumberList', /^\s*(\d+)\s*/, ',')
 
-		let m = matcher(new SourceContext('1,2,'))
+		let m = matcher.parse('1,2,')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -42,7 +41,7 @@ describe('match', function () {
 			} ],
 		})
 
-		m = matcher(new SourceContext('1,2'))
+		m = matcher.parse('1,2')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -57,7 +56,7 @@ describe('match', function () {
 		})
 
 		matcher = match.many('NumberList', /^\s*(\d+)\s*/)
-		m = matcher(new SourceContext('  1 2  '))
+		m = matcher.parse('  1 2  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -73,7 +72,7 @@ describe('match', function () {
 	})
 
 	it('optional', function () {
-		let m = match.optional('None', ',')(new SourceContext('  123  '))
+		let m = match.optional('None', ',').parse('  123  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '  123  ')
 		assert.deepEqual(m.node.toObject(), {
@@ -81,7 +80,7 @@ describe('match', function () {
 			parts: [ ],
 		})
 
-		m = match.optional('None', ',')(new SourceContext('  ,123  '))
+		m = match.optional('None', ',').parse('  ,123  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '123  ')
 		assert.deepEqual(m.node.toObject(), {
@@ -93,10 +92,10 @@ describe('match', function () {
 	it('plus', function () {
 		const matcher = match.plus('NumberList', match.regex('Number', /^\s*(\d+)\s*/))
 
-		let m = matcher(new SourceContext(','))
+		let m = matcher.parse(',')
 		assert(!m, 'Returned match when it should not have')
 
-		m = matcher(new SourceContext('1,'))
+		m = matcher.parse('1,')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), ',')
 		assert.deepEqual(m.node.toObject(), {
@@ -107,7 +106,7 @@ describe('match', function () {
 			} ],
 		})
 
-		m = matcher(new SourceContext('1 2'))
+		m = matcher.parse('1 2')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.deepEqual(m.node.toObject(), {
 			type: 'NumberList',
@@ -122,7 +121,7 @@ describe('match', function () {
 	})
 
 	it('regex', function () {
-		const m = match.regex('Number', /^\s*(\d+)\s*/)(new SourceContext('  123  '))
+		const m = match.regex('Number', /^\s*(\d+)\s*/).parse('  123  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -136,7 +135,7 @@ describe('match', function () {
 		const num = match.regex('Num', /\s*(\d+)\s*/)
 		const matcher = match.sequence('Seq', '{', id, '=', num, '}')
 
-		let m = matcher(new SourceContext('  { three = 3 }  '))
+		let m = matcher.parse('  { three = 3 }  ')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '')
 		assert.deepEqual(m.node.toObject(), {
@@ -159,12 +158,12 @@ describe('match', function () {
 			} ],
 		})
 
-		m = matcher(new SourceContext('  three = 3 }  '))
+		m = matcher.parse('  three = 3 }  ')
 		assert(!m, 'Returned match when it should not have')
 	})
 
 	it('string', function () {
-		const m = match.string('LeftBrace', '{')(new SourceContext('  {}'))
+		const m = match.string('LeftBrace', '{').parse('  {}')
 		assert(Boolean(m), 'Returned undefined match')
 		assert.equal(m.ctx.toString(), '}')
 		assert.deepEqual(m.node.toObject(), {
