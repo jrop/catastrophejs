@@ -12,7 +12,7 @@ module.exports = class AstNode {
 	toObject() {
 		return {
 			type: this.type,
-			parts: this.parts.map(part => part.toObject ? part.toObject() : part),
+			parts: this.parts.map(part => part && part.toObject ? part.toObject() : part),
 		}
 	}
 	toString() {

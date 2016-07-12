@@ -82,10 +82,12 @@ function plus(type = 'Many', matcher, separator) {
 }
 
 function regex(type = 'RegExp', regex) {
+	const _D = debug('match:regex:' + type)
 	assert(typeof type == 'string', 'Must pass a node type to match.regex (signature: match.regex(type, s))')
 	return parsify(function regexMatcher(ctx) {
+		regex.lastIndex = 0
 		const match = regex.exec(ctx.toString())
-		debug('rdp:regex')(ctx.toString(), regex.source, match)
+		_D(type, ctx.toString(), regex.source, match)
 		if (!match) return
 
 		return {
@@ -96,11 +98,13 @@ function regex(type = 'RegExp', regex) {
 }
 
 function sequence(type = 'Sequence', ...tokens) {
+	const _D = debug('match:regex:' + type)
 	assert(typeof type == 'string', 'Must pass a node type to match.sequence (signature: match.sequence(type, ...tokens))')
 	const matchers = normalizeMatchers(tokens)
 
 	// combine into one matcher:
 	return parsify(function sequenceMatcher(ctx) {
+		_D(ctx.toString())
 		let currCtx = ctx
 		const matches = [ ]
 		for (const matcher of matchers) {

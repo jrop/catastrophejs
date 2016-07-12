@@ -88,8 +88,45 @@ match.any(numberMatcher, alphaMatcher).parse('123')
 
 Returns a matcher that matches zero-or-more items as specified by the given item-matcher and separator-matcher.
 
+Example:
+
+```js
+match.many('NumberList', match.regex('Number', /^\s*(\d+)\s*/), ',')
+// => { type: 'NumberList',
+//      parts: [ { type: 'Item', parts: [ { type: 'Number', parts: [ '1' ] } ] } ] }
+```
+
 ### match.optional(noneType: string, matcher: Matcher): Matcher
+
+Matches zero or one item specified by the given matcher.  If it matches, it returns the AST node as returned by `matcher`.  If there is no match, it returns an empty AST node with the type specified by `noneType`.
+
 ### match.plus(type: string, item: Matcher, separator: Matcher): Matcher
+
+Same as `match.many`, except that it requires a minimum of one (1) match.
+
 ### match.regex(type: string, regex: RegExp): Matcher
+
+Creates a matcher based on a Regular Expression.
+
+Example:
+
+```js
+match.regex('Number', /^\s*(\d+)\s*/)
+```
+
 ### match.sequence(type: string, ...matchers: Array<Matcher>): Matcher
+
+Matches a sequence of matchers.
+
+Example:
+
+```js
+match.sequence('Block',
+	match.string('LeftBrace', '{'),
+	match.many(statementMatcher),
+	match.string('RightBrace'),)
+```
+
 ### match.string(type: string, s: string): Matcher
+
+Matches a string, disregarding whitespace.
