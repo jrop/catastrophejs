@@ -1,10 +1,11 @@
 {
-  "name": "rdp",
+  "name": "catastrophe",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "coverage": "istanbul cover _mocha test/",
+    "test": "mocha test/"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +13,9 @@
   "dependencies": {
     "debug": "^2.2.0",
     "fs": "0.0.2"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3"
   }
 }
