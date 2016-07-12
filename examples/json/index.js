@@ -13,7 +13,7 @@ function g(name) {
 	}
 }
 g['NullLiteral'] = match.string('NullLiteral', 'null')
-g['StringLiteral'] = match.regex('StringLiteral', /^\s*"((?:(?:\\")|[^"])*)"\s*/gm)
+g['StringLiteral'] = match.regex('StringLiteral', /^\s*"((?:(?:\\")|[^"\n])*)"\s*/gm)
 g['NumberLiteral'] = match.regex('NumberLiteral', /^\s*(\d+(?:\.\d*)?|\.\d+)\s*/gm)
 g['BooleanLiteral'] = match.regex('BooleanLiteral', /^\s*(true|false)\s*/gm)
 

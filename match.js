@@ -20,7 +20,10 @@ function normalizeMatchers(matchers) {
 
 function parsify(matcher) {
 	matcher.match = src => matcher(new SourceContext(src))
-	matcher.parse = src => matcher.match(src).node
+	matcher.parse = src => {
+		const match = matcher.match(src)
+		return match ? match.node : undefined
+	}
 	return matcher
 }
 
