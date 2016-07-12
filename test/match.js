@@ -90,7 +90,36 @@ describe('match', function () {
 		})
 	})
 
-	it('plus')
+	it('plus', function () {
+		const matcher = match.plus('NumberList', match.regex('Number', /^\s*(\d+)\s*/))
+
+		let m = matcher(new SourceContext(','))
+		assert(!m, 'Returned match when it should not have')
+
+		m = matcher(new SourceContext('1,'))
+		assert(Boolean(m), 'Returned undefined match')
+		assert.equal(m.ctx.toString(), ',')
+		assert.deepEqual(m.node.toObject(), {
+			type: 'NumberList',
+			parts: [ {
+				type: 'Item',
+				parts: [ { type: 'Number', parts: [ '1' ] }, { type: 'Separator', parts: [ ] } ],
+			} ],
+		})
+
+		m = matcher(new SourceContext('1 2'))
+		assert(Boolean(m), 'Returned undefined match')
+		assert.deepEqual(m.node.toObject(), {
+			type: 'NumberList',
+			parts: [ {
+				type: 'Item',
+				parts: [ { type: 'Number', parts: [ '1' ] }, { type: 'Separator', parts: [ ] } ],
+			}, {
+				type: 'Item',
+				parts: [ { type: 'Number', parts: [ '2' ] }, { type: 'Separator', parts: [ ] } ],
+			} ],
+		})
+	})
 
 	it('regex', function () {
 		const m = match.regex('Number', /^\s*(\d+)\s*/)(new SourceContext('  123  '))
@@ -102,7 +131,37 @@ describe('match', function () {
 		})
 	})
 
-	it('sequence')
+	it('sequence', function () {
+		const id = match.regex('Id', /\s*(\w+)\s*/)
+		const num = match.regex('Num', /\s*(\d+)\s*/)
+		const matcher = match.sequence('Seq', '{', id, '=', num, '}')
+
+		let m = matcher(new SourceContext('  { three = 3 }  '))
+		assert(Boolean(m), 'Returned undefined match')
+		assert.equal(m.ctx.toString(), '')
+		assert.deepEqual(m.node.toObject(), {
+			type: 'Seq',
+			parts: [ {
+				type: 'String',
+				parts: [ '{' ],
+			}, {
+				type: 'Id',
+				parts: [ 'three' ],
+			}, {
+				type: 'String',
+				parts: [ '=' ],
+			}, {
+				type: 'Num',
+				parts: [ '3' ],
+			}, {
+				type: 'String',
+				parts: [ '}' ],
+			} ],
+		})
+
+		m = matcher(new SourceContext('  three = 3 }  '))
+		assert(!m, 'Returned match when it should not have')
+	})
 
 	it('string', function () {
 		const m = match.string('LeftBrace', '{')(new SourceContext('  {}'))

@@ -70,7 +70,7 @@ function plus(type = 'Many', matcher, separator) {
 	const _matcher = many(type, matcher, separator)
 	return function plusMatcher(ctx) {
 		const match = _matcher(ctx)
-		return match && match.node.parts.length > 1 ? match : undefined
+		return match && match.node.parts.length >= 1 ? match : undefined
 	}
 }
 
