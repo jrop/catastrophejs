@@ -19,13 +19,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "debug": "^2.2.0",
+    "debug": "^3.0.1",
     "escape-string-regexp": "^1.0.5"
   },
   "devDependencies": {
-    "eslint": "^3.0.1",
+    "eslint": "^4.5.0",
     "istanbul": "^0.4.4",
-    "mocha": "^2.5.3"
+    "mocha": "^3.5.0"
   },
   "repository": {
     "type": "git",
