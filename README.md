@@ -1,5 +1,7 @@
 # catASTrophe
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/jrop/catastrophejs.svg)](https://greenkeeper.io/)
+
 > parse source text into an Abstract Syntax Tree (AST)
 
 # Installation
